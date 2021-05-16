@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bert-email-router-dash
+  labels:
+    app: bert-email-router-dash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bert-email-router-dash
+  template:
+    metadata:
+      labels:
+        app: bert-email-router-dash
+      annotations:
+        prometheus.io/scrape: 'true'
+    spec:
+      serviceAccountName: dataai-mlflow
+      securityContext:
+        fsGroup: 65534
+      containers:
+      - name: bert-email-router-dash
+        image: bert-email-router
+        ports:
+        - containerPort: 8787
+        env:
+          - name: MARIADB_USR
+            valueFrom:
+              secretKeyRef:
+                name: mariadb
+                key: MARIADB_USR
+          - name: MARIADB_PSW
+            valueFrom:
+              secretKeyRef:
+                name: mariadb
+                key: MARIADB_PSW
+          - name: AWS_DEFAULT_REGION
+            value: eu-central-1
+          - name: MLFLOW_S3_ENDPOINT_URL
+            value: https://s3.eu-central-1.amazonaws.com/
+          - name: MLFLOW_S3_UPLOAD_EXTRA_ARGS
+            value: '{"ACL": "bucket-owner-full-control"}'
+          - name: MLFLOW_TRACKING_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: mlflow
+                key: MLFLOW_TRACKING_USERNAME
+          - name: MLFLOW_TRACKING_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mlflow
+                key: MLFLOW_TRACKING_PASSWORD
+        resources:
+          limits:
+            memory: 4096Mi
+            cpu: "5"
+          requests:
+            memory: 2048Mi
+            cpu: "3"
+        command: ["gunicorn", "app_dash:server", "--bind", "0.0.0.0:8787", "-w", "3"]
+      imagePullSecrets:
+      - name: gh-docker-creds

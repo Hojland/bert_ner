@@ -1,0 +1,13 @@
+.env
+.vscode
+.venv
+.python-version
+src/mlruns/*
+src/mlruns/
+src/data/*
+*/__main__
+*/*/__main__
+mlruns/
+mlruns/*
+src/bert_email_router/
+src/bert_email_router/*

@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- deployment-api.yaml
+- service-api.yaml
+- deployment-dash.yaml
+- service-dash.yaml
+commonLabels:
+  app: bert-email-router
+  owner: martech
+configMapGenerator:
+- name: bert-email-router-map

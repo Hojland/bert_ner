@@ -1,0 +1,44 @@
+name: 'deploy'
+description: 'Deploy to a given environment'
+inputs:
+  directory: 
+    description: 'Directory of manifests to deploy'
+    required: true
+  namespace:
+    description: 'Namespace to deploy to'
+    required: true
+  image:
+    description: 'Docker image to deploy'
+    required: true
+  app_id:
+    description: 'Id of the app to deploy'
+    required: true
+outputs:
+  hostname:
+    description: 'The hostname of the deployed resource'
+    value: ${{ steps.deploy-k8s-yaml.outputs.hostname }}
+runs:
+  using: "composite"
+  steps:
+    - name: Deploy k8s yaml
+      id: deploy-k8s-yaml
+      shell: bash
+      env:
+        K8S_YAML_DIR: ${{ inputs.directory }}
+        IMAGE_NAME:  ${{ inputs.image }}
+        K8S_NAMESPACE: ${{ inputs.namespace }}
+        APP_ID: ${{ inputs.app_id }}
+      run: |
+        # Ensure we always talk to the right namespace
+        kubectl config set-context --current --namespace=${K8S_NAMESPACE}
+        cd $K8S_YAML_DIR
+        kustomize edit set image ${APP_ID}=$IMAGE_NAME
+        kustomize edit set namespace ${K8S_NAMESPACE}
+        kustomize build . | kubectl apply -f -
+        # Verify deployment
+        kubectl rollout status deployment/${APP_ID}-api
+        # List Public IP of cluster
+        kubectl get services -o wide
+        kubectl get ingress
+
+        echo ::set-output name=hostname::$(kubectl get ingress ${APP_ID}-api-ingress |awk -F ' ' 'FNR == 2 {print $2}')

@@ -1,0 +1,93 @@
+
+[tool.poetry]
+name = "bert_email_router"
+version = "0.1.0"
+description = ""
+authors = ["Idunn Prestholm <idp@yousee.dk>", "Martin Højland <molheh@yousee.dk>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+transformers = "^4.5.1"
+uvicorn = "^0.13.4"
+spacy = "^3.0.5"
+boto3 = "^1.17.54"
+captum = "^0.3.1"
+shap = "^0.35.0"
+mlflow = "^1.13.1"
+optuna = "^2.6.0"
+pandas = "^1.1.4"
+numpy = "^1.19.4"
+pydantic = "^1.7.2"
+python-dotenv = "^0.15.0"
+extract-msg = "^0.28.7"
+tqdm = "^4.60.0"
+email-validator = "^1.1.2"
+cachetools = "^4.2.1"
+torch = "^1.8.1"
+fastapi = "^0.63.0"
+poethepoet = "^0.10.0"
+mysqlclient = "^2.0.0"
+seaborn = "^0.11.1"
+dash = "^1.20.0"
+tensorboard = ">=2.5.0"
+
+[tool.poetry.dev-dependencies]
+black = {version = "^20.8b1", allow-prereleases = true}
+ipykernel = "^5.3.4"
+ipywidgets = "^7.6.3"
+lifelines = "^0.25.9"
+jupyterlab = "^2.2.9"
+mypy = "^0.770"
+isort = "^4.3.21"
+autoflake = "^1.3.1"
+flake8 = "^3.7.9"
+pytest-black = "^0.3.10"
+pytest-clarity = "^0.3.0-alpha.0"
+pytest-mock = "^3.3.1"
+pytest-asyncio = "^0.14.0"
+pytest-cov = "^2.11.1"
+Faker = "^4.1.1"
+poethepoet = "^0.10.0"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--cov --cov-report=xml:cov.xml --black"
+testpaths = "tests src"
+
+[tool.coverage.paths]
+source = ["src/", "*/site-packages"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 40
+exclude_lines = [
+  "pragma: no cover",
+  "raise NotImplementedError"
+]
+
+[tool.poe.tasks]
+force-cuda11 = "python3 -m pip install torch==1.8.1+cu111 -f https://download.pytorch.org/whl/torch_stable.html"
+
+[tool.black]
+line-length = 135
+target-version = ['py38']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs         # exclude a few common directories in the
+  | \.git          # root of the project
+  | \.mypy_cache
+  | \.venv
+  | \.vscode
+  | _build
+  | buck-out
+  | build
+  | dist
+  | tmp
+)/
+'''
+
+[tool.isort]
+multi_line_output = 3
+line_length = 88
+include_trailing_comma = true
